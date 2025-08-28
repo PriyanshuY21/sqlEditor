@@ -5,386 +5,105 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SQL Editor</title>
   <style>
-    * {
-      box-sizing: border-box;
-    }
-
     html, body {
-      height: 100%;
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      height: 100%; margin: 0; padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f5f6fa;
       overflow: hidden;
     }
-
-    .editor-wrapper {
-      position: relative;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      border-radius: 0;
-      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
-    }
-
     .header {
-      padding: 20px 24px 16px;
-      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-      color: white;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
+      padding: 16px;
+      background: #2a5298;
+      color: white; text-align: center;
     }
-
-    .header::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 20"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="20" fill="url(%23grid)"/></svg>');
-      opacity: 0.3;
-    }
-
-    .header h1 {
-      margin: 0;
-      font-size: 24px;
-      font-weight: 600;
-      position: relative;
-      z-index: 1;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-    }
-
-    .header p {
-      margin: 8px 0 0;
-      opacity: 0.9;
-      font-size: 14px;
-      position: relative;
-      z-index: 1;
-    }
-
     .editor-container {
-      flex: 1;
+      height: calc(100vh - 60px);
       position: relative;
-      margin: 20px;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 
-        0 10px 30px rgba(0, 0, 0, 0.1),
-        0 1px 8px rgba(0, 0, 0, 0.05),
-        inset 0 1px 0 rgba(255, 255, 255, 0.5);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      background: #ffffff;
     }
-
-    .editor-container::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 40px;
-      background: linear-gradient(to bottom, #f8f9fa, #e9ecef);
-      border-bottom: 1px solid #dee2e6;
-      display: flex;
-      align-items: center;
-      padding: 0 16px;
-      font-size: 12px;
-      color: #6c757d;
-      font-weight: 500;
-      z-index: 10;
-    }
-
     #container {
-      position: absolute;
-      top: 40px;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      border-radius: 0 0 12px 12px;
+      width: 100%; height: 100%;
     }
-
     .status-bar {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 28px;
-      background: linear-gradient(to right, #f1f3f4, #e8eaed);
-      border-top: 1px solid #dadce0;
-      display: flex;
-      align-items: center;
-      padding: 0 16px;
-      font-size: 11px;
-      color: #5f6368;
-      border-radius: 0 0 12px 12px;
-      z-index: 10;
-    }
-
-    .status-item {
-      margin-right: 16px;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .status-indicator {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #34a853;
-      animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-      0% { opacity: 1; }
-      50% { opacity: 0.5; }
-      100% { opacity: 1; }
-    }
-
-    .keyboard-hint {
-      position: absolute;
-      top: 12px;
-      right: 16px;
-      background: rgba(0, 0, 0, 0.8);
-      color: white;
-      padding: 6px 10px;
-      border-radius: 6px;
-      font-size: 11px;
-      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-      opacity: 0.8;
-      z-index: 20;
-      backdrop-filter: blur(4px);
-    }
-
-    .loading {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: #6c757d;
-      font-size: 14px;
-    }
-
-    .spinner {
-      width: 20px;
-      height: 20px;
-      border: 2px solid #e3e3e3;
-      border-top: 2px solid #667eea;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    @media (max-width: 768px) {
-      .header {
-        padding: 16px 20px 12px;
-      }
-      
-      .header h1 {
-        font-size: 20px;
-      }
-      
-      .editor-container {
-        margin: 16px;
-      }
-      
-      .keyboard-hint {
-        display: none;
-      }
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: #f1f3f4; padding: 4px 12px;
+      font-size: 12px; color: #555;
+      border-top: 1px solid #ddd;
     }
   </style>
   <script src="https://unpkg.com/monaco-editor@0.38.0/min/vs/loader.js"></script>
 </head>
 <body>
-  <div class="editor-wrapper">
-    <div class="header">
-      <h1>SQL Editor</h1>
-      <p>Write, execute, and explore your SQL queries</p>
-    </div>
-    
-    <div class="editor-container">
-      <div class="keyboard-hint">⌘+Enter to run</div>
-      <div class="loading" id="loading">
-        <div class="spinner"></div>
-        Loading editor...
-      </div>
-      <div id="container"></div>
-      <div class="status-bar">
-        <div class="status-item">
-          <div class="status-indicator"></div>
-          <span>Ready</span>
-        </div>
-        <div class="status-item">
-          <span>SQL</span>
-        </div>
-        <div class="status-item">
-          <span id="line-col">Ln 1, Col 1</span>
-        </div>
-      </div>
-    </div>
+  <div class="header">
+    <h2>SQL Editor</h2>
+    <p>Press Ctrl+Enter (or Cmd+Enter) to execute</p>
+  </div>
+  <div class="editor-container">
+    <div id="container"></div>
+    <div class="status-bar"><span id="line-col">Ln 1, Col 1</span></div>
   </div>
 
   <script>
-    require.config({ 
-      paths: { 
-        'vs': 'https://unpkg.com/monaco-editor@0.38.0/min/vs' 
-      }
-    });
+    require.config({ paths: { 'vs': 'https://unpkg.com/monaco-editor@0.38.0/min/vs' } });
 
     require(['vs/editor/editor.main'], function() {
-      document.getElementById('loading').style.display = 'none';
       const editor = monaco.editor.create(document.getElementById('container'), {
         value: `-- Welcome to SQL Editor
--- Write your queries here and press Ctrl+Enter (or Cmd+Enter) to execute
-
-SELECT 
-    column1,
-    column2,
-    COUNT(*) as record_count
-FROM your_table 
-WHERE condition = 'value'
-GROUP BY column1, column2
-ORDER BY record_count DESC
-LIMIT 100;`,
+-- Type query and press Ctrl+Enter
+SELECT * FROM my_table LIMIT 10;`,
         language: 'sql',
         theme: 'vs',
-        automaticLayout: true,
         minimap: { enabled: false },
         fontSize: 14,
-        lineHeight: 24,
-        fontFamily: "'Monaco', 'Menlo', 'Ubuntu Mono', Consolas, monospace",
-        wordWrap: 'on',
-        lineNumbers: 'on',
-        renderLineHighlight: 'all',
-        selectOnLineNumbers: true,
-        roundedSelection: false,
-        readOnly: false,
-        cursorStyle: 'line',
-        automaticLayout: true,
-        scrollBeyondLastLine: false,
-        scrollbar: {
-          verticalScrollbarSize: 8,
-          horizontalScrollbarSize: 8
-        },
-        suggestOnTriggerCharacters: true,
-        acceptSuggestionOnEnter: 'on',
-        tabCompletion: 'on',
-        parameterHints: {
-          enabled: true
+        automaticLayout: true
+      });
+
+      function updateLineCol() {
+        const pos = editor.getPosition();
+        document.getElementById('line-col').textContent = `Ln ${pos.lineNumber}, Col ${pos.column}`;
+      }
+      editor.onDidChangeCursorPosition(updateLineCol);
+
+      editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, function() {
+        const query = editor.getValue();
+        window.parent.postMessage({ source: "sqlEditor", type: "sql:run", value: query }, "*");
+      });
+
+      window.addEventListener("message", (event) => {
+        const data = event.data || {};
+        if (data.type === "sql:set") {
+          editor.setValue(data.value || "");
+        } else if (data.type === "sql:results") {
+          console.log("Query Results from Retool:", data.results);
         }
       });
 
       monaco.languages.registerCompletionItemProvider('sql', {
-        provideCompletionItems: function(model, position) {
+        provideCompletionItems: () => {
           const suggestions = [
-            { label: 'SELECT', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'SELECT ', detail: 'SELECT statement' },
-            { label: 'FROM', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'FROM ', detail: 'FROM clause' },
-            { label: 'WHERE', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'WHERE ', detail: 'WHERE clause' },
-            { label: 'GROUP BY', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'GROUP BY ', detail: 'GROUP BY clause' },
-            { label: 'ORDER BY', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'ORDER BY ', detail: 'ORDER BY clause' },
-            { label: 'HAVING', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'HAVING ', detail: 'HAVING clause' },
-            { label: 'LIMIT', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'LIMIT ', detail: 'LIMIT clause' },
-            { label: 'INSERT INTO', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'INSERT INTO ', detail: 'INSERT statement' },
-            { label: 'UPDATE', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'UPDATE ', detail: 'UPDATE statement' },
-            { label: 'DELETE', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'DELETE ', detail: 'DELETE statement' },
+            { label: 'SELECT', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'SELECT ', detail: 'Select columns from a table' },
+            { label: 'FROM', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'FROM ', detail: 'Specify source table' },
+            { label: 'WHERE', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'WHERE ', detail: 'Filter rows' },
+            { label: 'GROUP BY', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'GROUP BY ', detail: 'Group rows by columns' },
+            { label: 'HAVING', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'HAVING ', detail: 'Filter groups' },
+            { label: 'ORDER BY', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'ORDER BY ', detail: 'Sort result set' },
+            { label: 'LIMIT', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'LIMIT ', detail: 'Limit number of rows' },
+            { label: 'INSERT INTO', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'INSERT INTO ', detail: 'Insert new rows' },
+            { label: 'UPDATE', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'UPDATE ', detail: 'Update existing rows' },
+            { label: 'DELETE', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'DELETE ', detail: 'Delete rows' },
+            { label: 'JOIN', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'JOIN ', detail: 'Join tables' },
+            { label: 'INNER JOIN', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'INNER JOIN ', detail: 'Return rows with matches in both tables' },
+            { label: 'LEFT JOIN', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'LEFT JOIN ', detail: 'Return all rows from left table' },
+            { label: 'RIGHT JOIN', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'RIGHT JOIN ', detail: 'Return all rows from right table' },
+            { label: 'FULL JOIN', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'FULL JOIN ', detail: 'Return rows when there is a match in one of the tables' },
             { label: 'COUNT', kind: monaco.languages.CompletionItemKind.Function, insertText: 'COUNT(${1:*})', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'Count rows' },
-            { label: 'SUM', kind: monaco.languages.CompletionItemKind.Function, insertText: 'SUM(${1:column})', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'Sum values' },
-            { label: 'AVG', kind: monaco.languages.CompletionItemKind.Function, insertText: 'AVG(${1:column})', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'Average values' },
+            { label: 'SUM', kind: monaco.languages.CompletionItemKind.Function, insertText: 'SUM(${1:column})', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'Sum column values' },
+            { label: 'AVG', kind: monaco.languages.CompletionItemKind.Function, insertText: 'AVG(${1:column})', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'Average column values' },
             { label: 'MAX', kind: monaco.languages.CompletionItemKind.Function, insertText: 'MAX(${1:column})', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'Maximum value' },
             { label: 'MIN', kind: monaco.languages.CompletionItemKind.Function, insertText: 'MIN(${1:column})', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'Minimum value' }
           ];
-          
-          if (window._schemaSuggestions) {
-            suggestions.push(...window._schemaSuggestions);
-          }
-          
-          return { suggestions };
+          return { suggestions: suggestions };
         }
       });
-
-      function updateLineCol() {
-        const position = editor.getPosition();
-        const lineColElement = document.getElementById('line-col');
-        if (lineColElement && position) {
-          lineColElement.textContent = `Ln ${position.lineNumber}, Col ${position.column}`;
-        }
-      }
-
-      let updateTimer = null;
-      
-      function sendUpdate() {
-        const payload = { 
-          type: 'sql:update', 
-          value: editor.getValue() 
-        };
-        window.parent.postMessage(payload, '*');
-      }
-
-      editor.onDidChangeModelContent(() => {
-        clearTimeout(updateTimer);
-        updateTimer = setTimeout(sendUpdate, 250);
-      });
-
-      editor.onDidChangeCursorPosition(updateLineCol);
-      editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, function() {
-        const query = editor.getValue();
-        window.parent.postMessage({ type: 'sql:run', value: query }, '*');
-        window.parent.postMessage({ type: 'sql:update', value: query }, '*');
-        
-        const statusIndicator = document.querySelector('.status-indicator');
-        if (statusIndicator) {
-          statusIndicator.style.background = '#fbbc04';
-          setTimeout(() => {
-            statusIndicator.style.background = '#34a853';
-          }, 1000);
-        }
-      });
-
-      window.addEventListener('message', (event) => {
-        try {
-          const data = event.data || {};
-          
-          if (data.type === 'sql:set') {
-            editor.setValue(data.value || '');
-          } else if (data.type === 'schema:set') {
-            window._schemaSuggestions = [];
-            const schema = data.schema || [];
-            
-            schema.forEach(table => {
-              window._schemaSuggestions.push({
-                label: table.table,
-                kind: monaco.languages.CompletionItemKind.Class,
-                insertText: table.table,
-                detail: `Table: ${table.table}`
-              });
-              
-              (table.columns || []).forEach(column => {
-                window._schemaSuggestions.push({
-                  label: `${table.table}.${column}`,
-                  kind: monaco.languages.CompletionItemKind.Field,
-                  insertText: `${table.table}.${column}`,
-                  detail: `Column: ${column} in ${table.table}`
-                });
-              });
-            });
-          }
-        } catch (error) {
-          console.error('Error handling message:', error);
-        }
-      }, false);
-      updateLineCol();
-      sendUpdate();
     });
   </script>
 </body>
